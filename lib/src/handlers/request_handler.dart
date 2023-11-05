@@ -31,6 +31,17 @@ abstract class MockServer {
     Duration? delay,
   });
 
+  void replyCallback2(
+      MockStatusCodeCallback statusCode,
+      MockDataCallback data, {
+        Map<String, List<String>> headers = const {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+        String? statusMessage,
+        bool isRedirect = false,
+        Duration? delay,
+      });
+
   void replyCallbackAsync(
     int statusCode,
     MockDataCallbackAsync data, {
@@ -166,5 +177,26 @@ class RequestHandler implements MockServer {
   void throws(int statusCode, DioException dioError, {Duration? delay}) {
     mockResponse =
         (requestOptions) async => MockDioException.from(dioError, delay);
+  }
+
+  @override
+  void replyCallback2(MockStatusCodeCallback statusCode, MockDataCallback data, {Map<String, List<String>> headers = const {Headers.contentTypeHeader : [Headers.jsonContentType]}, String? statusMessage, bool isRedirect = false, Duration? delay}) {
+    final isJsonContentType = headers[Headers.contentTypeHeader]?.contains(
+      Headers.jsonContentType,
+    ) ??
+        false;
+
+    mockResponse = (requestOptions) async {
+      final rawData = await data(requestOptions);
+
+      return MockResponseBody.from(
+        isJsonContentType ? jsonEncode(rawData) : rawData,
+        statusCode(requestOptions),
+        headers: headers,
+        statusMessage: statusMessage,
+        isRedirect: isRedirect,
+        delay: delay,
+      );
+    };
   }
 }

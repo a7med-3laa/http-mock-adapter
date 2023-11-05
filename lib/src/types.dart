@@ -15,6 +15,7 @@ typedef MockResponseBodyCallback = Future<MockResponse?> Function(
 
 /// Type for expect data as function
 typedef MockDataCallback = dynamic Function(RequestOptions options);
+typedef MockStatusCodeCallback = int Function(RequestOptions options);
 
 /// Type for async expect data as function
 typedef MockDataCallbackAsync = Future<dynamic> Function(
